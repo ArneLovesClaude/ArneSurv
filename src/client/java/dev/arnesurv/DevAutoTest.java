@@ -54,8 +54,13 @@ final class DevAutoTest {
 				c.minimapRound = false;
 			}
 			case 380 -> shot(mc, "4_hoehle");
-			case 400 -> {
+			case 390 -> {
 				c.minimapCaveMode = "AUTO";
+				mc.gui.setScreen(new dev.arnesurv.worldmap.WorldMapScreen(null, null));
+			}
+			case 430 -> shot(mc, "5_weltkarte");
+			case 440 -> {
+				mc.gui.setScreen(null);
 				ModConfig.save();
 				mc.stop();
 			}

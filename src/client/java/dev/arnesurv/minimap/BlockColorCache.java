@@ -9,7 +9,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.io.InputStream;
@@ -39,6 +41,10 @@ public final class BlockColorCache {
 	/** Endgültige Farbe (ARGB) inkl. Biom-Färbung. */
 	public static int color(BlockState state, ClientLevel level, BlockPos pos) {
 		int base = BASE.computeIfAbsent(state.getBlock(), b -> compute(state));
+		if (state.getBlock() == Blocks.WATER) {
+			// Wasser hat keine Block-Tint-Quelle, die Farbe kommt vom Biom
+			return multiply(base, BiomeColors.getAverageWaterColor(level, pos));
+		}
 		BlockTintSource tint = Minecraft.getInstance().getBlockColors().getTintSource(state, 0);
 		if (tint != null) {
 			try {

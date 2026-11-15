@@ -9,6 +9,9 @@ import dev.arnesurv.hud.CompassHud;
 import dev.arnesurv.hud.InfoHud;
 import dev.arnesurv.minimap.MapCache;
 import dev.arnesurv.minimap.MinimapHud;
+import dev.arnesurv.worldmap.WorldMapScreen;
+import dev.arnesurv.worldmap.WorldMapStore;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import dev.arnesurv.waypoint.WaypointManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -30,6 +33,7 @@ public class ArneSurv implements ClientModInitializer {
 	private static KeyMapping newWaypointKey;
 	private static KeyMapping zoomInKey;
 	private static KeyMapping zoomOutKey;
+	private static KeyMapping worldMapKey;
 
 	public static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath(MOD_ID, path);
@@ -55,6 +59,10 @@ public class ArneSurv implements ClientModInitializer {
 			"key.arnesurv.zoom_in", InputConstants.Type.KEYBOARD, InputConstants.KEY_EQUALS, category));
 		zoomOutKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 			"key.arnesurv.zoom_out", InputConstants.Type.KEYBOARD, InputConstants.KEY_MINUS, category));
+		worldMapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+			"key.arnesurv.world_map", InputConstants.Type.KEYBOARD, InputConstants.KEY_M, category));
+
+		ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> WorldMapStore.saveAndUnloadAll());
 
 		ClientTickEvents.END_CLIENT_TICK.register(ArneSurv::onTick);
 
@@ -69,8 +77,13 @@ public class ArneSurv implements ClientModInitializer {
 
 	private static void onTick(Minecraft mc) {
 		WaypointManager.tick(mc);
+		WorldMapStore.tick(mc);
 		MapCache.tick(mc);
 		MinimapHud.INSTANCE.tick(mc);
+
+		while (worldMapKey.consumeClick()) {
+			if (mc.player != null && ModConfig.get().worldMapEnabled) mc.gui.setScreen(new WorldMapScreen(null, worldMapKey));
+		}
 		DevAutoTest.tick(mc);
 
 		while (zoomInKey.consumeClick()) changeZoom(-1);

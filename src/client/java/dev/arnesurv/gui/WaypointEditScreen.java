@@ -29,11 +29,18 @@ public class WaypointEditScreen extends Screen {
 	/** Neuer Waypoint an der aktuellen Position des Spielers. */
 	public static WaypointEditScreen forCurrentPosition(Screen parent) {
 		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null) return forPosition(parent, 0, 64, 0);
+		return forPosition(parent, mc.player.getBlockX(), mc.player.getBlockY(), mc.player.getBlockZ());
+	}
+
+	/** Neuer Waypoint an einer beliebigen Stelle (z.B. Rechtsklick auf der Weltkarte). */
+	public static WaypointEditScreen forPosition(Screen parent, int x, int y, int z) {
+		Minecraft mc = Minecraft.getInstance();
 		WaypointEditScreen s = new WaypointEditScreen(parent, null);
-		if (mc.player != null && mc.level != null) {
-			s.draft.x = mc.player.getBlockX();
-			s.draft.y = mc.player.getBlockY();
-			s.draft.z = mc.player.getBlockZ();
+		s.draft.x = x;
+		s.draft.y = y;
+		s.draft.z = z;
+		if (mc.level != null) {
 			s.draft.dimension = mc.level.dimension().identifier().toString();
 		}
 		s.draft.name = "Waypoint " + (WaypointManager.all().size() + 1);

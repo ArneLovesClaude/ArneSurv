@@ -1,6 +1,7 @@
 package dev.arnesurv.minimap;
 
 import dev.arnesurv.config.ModConfig;
+import dev.arnesurv.worldmap.WorldMapStore;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -22,8 +23,11 @@ import java.util.List;
 public final class MapCache {
 	/** Chunk-Radius um den Spieler, der berechnet wird (reicht für den größten Zoom inkl. Drehung). */
 	public static final int RADIUS = 9;
-	private static final int BUDGET_PER_TICK = 8;
+	/** Darüber hinaus (bis zur Sichtweite) wird nur selten berechnet – das ist für die Weltkarte. */
+	private static final int MAX_RADIUS = 32;
+	private static final int BUDGET_PER_TICK = 12;
 	private static final int REFRESH_TICKS = 100;
+	private static final int FAR_REFRESH_TICKS = 1200;
 	private static final int[][] OFFSETS = buildOffsets();
 
 	private static final Long2ObjectOpenHashMap<Tile> TILES = new Long2ObjectOpenHashMap<>();
@@ -42,8 +46,8 @@ public final class MapCache {
 
 	private static int[][] buildOffsets() {
 		List<int[]> list = new ArrayList<>();
-		for (int dx = -RADIUS; dx <= RADIUS; dx++)
-			for (int dz = -RADIUS; dz <= RADIUS; dz++) list.add(new int[]{dx, dz});
+		for (int dx = -MAX_RADIUS; dx <= MAX_RADIUS; dx++)
+			for (int dz = -MAX_RADIUS; dz <= MAX_RADIUS; dz++) list.add(new int[]{dx, dz});
 		list.sort(Comparator.comparingInt(o -> o[0] * o[0] + o[1] * o[1]));
 		return list.toArray(new int[0][]);
 	}
@@ -84,7 +88,7 @@ public final class MapCache {
 			}
 			return;
 		}
-		if (!ModConfig.get().minimapEnabled) return;
+		if (!ModConfig.get().minimapEnabled && !ModConfig.get().worldMapEnabled) return;
 		tickCounter++;
 
 		if (level != lastLevel) {
@@ -100,13 +104,19 @@ public final class MapCache {
 		}
 
 		int pcx = player.getBlockX() >> 4, pcz = player.getBlockZ() >> 4;
+		// Für die Weltkarte zählt nur die Oberfläche (bzw. im Nether die Höhlenansicht)
+		boolean feedsWorldMap = mode == Integer.MIN_VALUE || level.dimensionType().hasCeiling();
+		int far = feedsWorldMap ? Math.max(RADIUS, Math.min(MAX_RADIUS, mc.options.getEffectiveRenderDistance())) : RADIUS;
 		int budget = BUDGET_PER_TICK;
 		for (int[] o : OFFSETS) {
 			if (budget <= 0) break;
+			int dist = Math.max(Math.abs(o[0]), Math.abs(o[1]));
+			if (dist > far) continue;
 			int cx = pcx + o[0], cz = pcz + o[1];
 			long key = ChunkPos.pack(cx, cz);
 			Tile tile = TILES.get(key);
-			if (tile != null && tickCounter - tile.computedAt < REFRESH_TICKS) continue;
+			int refresh = dist <= RADIUS ? REFRESH_TICKS : FAR_REFRESH_TICKS;
+			if (tile != null && tickCounter - tile.computedAt < refresh) continue;
 			if (!level.hasChunk(cx, cz)) continue;
 			if (tile == null) {
 				tile = new Tile();
@@ -114,15 +124,17 @@ public final class MapCache {
 			}
 			compute(level, cx, cz, mode, tile);
 			tile.computedAt = tickCounter;
+			if (feedsWorldMap) WorldMapStore.putChunk(cx, cz, tile.colors);
 			changed = true;
 			budget--;
 		}
 
 		// Weit entfernte Chunks vergessen
 		if (tickCounter % 200 == 0) {
+			int keep = far + 4;
 			TILES.long2ObjectEntrySet().removeIf(e -> {
 				long k = e.getLongKey();
-				return Math.abs(ChunkPos.getX(k) - pcx) > RADIUS + 4 || Math.abs(ChunkPos.getZ(k) - pcz) > RADIUS + 4;
+				return Math.abs(ChunkPos.getX(k) - pcx) > keep || Math.abs(ChunkPos.getZ(k) - pcz) > keep;
 			});
 		}
 	}

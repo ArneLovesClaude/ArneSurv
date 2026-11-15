@@ -26,6 +26,7 @@ public class SettingsScreen extends Screen {
 		addRenderableWidget(ToggleButton.create("Info-HUD", () -> c.hudEnabled, v -> c.hudEnabled = v, left, y, colW));
 		addRenderableWidget(ToggleButton.create("Kompassleiste", () -> c.compassEnabled, v -> c.compassEnabled = v, left, y + 24, colW));
 		addRenderableWidget(ToggleButton.create("Waypoints", () -> c.waypointsEnabled, v -> c.waypointsEnabled = v, left, y + 48, colW));
+		addRenderableWidget(ToggleButton.create("Weltkarte", () -> c.worldMapEnabled, v -> c.worldMapEnabled = v, left, y + 96, colW));
 		addRenderableWidget(ToggleButton.create("Todes-Waypoint", () -> c.deathWaypoints, v -> c.deathWaypoints = v, left, y + 72, colW));
 
 		// Rechte Spalte: HUD-Inhalte

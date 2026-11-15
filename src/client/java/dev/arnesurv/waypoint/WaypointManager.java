@@ -88,7 +88,8 @@ public final class WaypointManager {
 		save();
 	}
 
-	private static String worldKey(Minecraft mc) {
+	/** Eindeutiger Name für den aktuellen Server bzw. die Einzelspielerwelt, oder null. */
+	public static String worldKey(Minecraft mc) {
 		if (mc.level == null || mc.player == null) return null;
 		ServerData server = mc.getCurrentServer();
 		if (server != null && !mc.isLocalServer()) return "server_" + sanitize(server.ip);
@@ -98,7 +99,7 @@ public final class WaypointManager {
 		return "unbekannt";
 	}
 
-	private static String sanitize(String s) {
+	public static String sanitize(String s) {
 		return s.toLowerCase().replaceAll("[^a-z0-9._-]", "_");
 	}
 

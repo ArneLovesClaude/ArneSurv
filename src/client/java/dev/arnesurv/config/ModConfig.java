@@ -53,6 +53,9 @@ public class ModConfig {
 	public boolean minimapWaypoints = true;
 	public dev.arnesurv.hud.HudPos minimapPos = new dev.arnesurv.hud.HudPos(1f, 0f, 1f);
 
+	// ---- Modul: Weltkarte ----
+	public boolean worldMapEnabled = true;
+
 	// ---- Modul: Waypoints ----
 	public boolean waypointsEnabled = true;
 	public boolean deathWaypoints = true;

@@ -8,6 +8,7 @@ Survival-Essentials für Minecraft **26.3** (Fabric). Rein clientseitig – funk
 - **Kompassleiste** – Himmelsrichtungen und Waypoints in Blickrichtung
 - **Waypoints** – anlegen, bearbeiten, verstecken, löschen; automatischer Todes-Waypoint
 - **Minimap** – eckig oder rund, dreht mit, Farben aus den echten Block-Texturen (auch mit Resource Packs), Höhlenmodus (automatisch, im Nether immer), Waypoints und Spieler
+- **Weltkarte** (`M`) – zeigt alles, was du schon gesehen hast (wird pro Welt/Server gespeichert), Zoom, Verschieben, Rechtsklick setzt einen Waypoint
 - **HUD-Editor** – alle Elemente frei verschieben und skalieren, Textfarbe wählbar
 - Jedes Modul einzeln an/aus
 
@@ -19,6 +20,7 @@ Survival-Essentials für Minecraft **26.3** (Fabric). Rein clientseitig – funk
 | `B` | Waypoint-Liste |
 | `N` | Neuer Waypoint an der aktuellen Position |
 | `=` / `-` | Minimap rein-/rauszoomen |
+| `M` | Weltkarte |
 
 ## Installation
 
@@ -28,7 +30,7 @@ Survival-Essentials für Minecraft **26.3** (Fabric). Rein clientseitig – funk
 
 ## Geplant
 
-Weltkarte, geteilte Waypoints, Chunk-Overlays, Komfort-Funktionen, Statistiken, Update-Hinweis.
+Geteilte Waypoints, Chunk-Overlays, Komfort-Funktionen, Statistiken, Update-Hinweis.
 
 ## Lizenz
 
