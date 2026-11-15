@@ -57,13 +57,15 @@ public class OverlaySettingsScreen extends Screen {
 			}).bounds(left + colW * 2 + gap - 60, sy, 60, 20).build());
 		}
 
+		addRenderableWidget(Button.builder(Component.literal("Strukturtypen auswählen…"), b ->
+			minecraft.gui.setScreen(new StructureTypesScreen(this))).bounds(width / 2 - 100, sy + 40, 200, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("§cErkannte Strukturen löschen"), b ->
 			minecraft.gui.setScreen(new ConfirmScreen(yes -> {
 				if (yes) Structures.clearAll();
 				minecraft.gui.setScreen(this);
 			}, Component.literal("Alle erkannten Strukturen löschen?"),
 				Component.literal("Betrifft nur diese Welt bzw. diesen Server. Sie werden beim Erkunden neu erkannt."))))
-			.bounds(width / 2 - 100, sy + 50, 200, 20).build());
+			.bounds(width / 2 - 100, sy + 64, 200, 20).build());
 
 		addRenderableWidget(Button.builder(Component.literal("Fertig"), b -> onClose())
 			.bounds(width / 2 - 100, height - 28, 200, 20).build());
@@ -81,9 +83,9 @@ public class OverlaySettingsScreen extends Screen {
 			g.centeredText(font, "§7Einzelspieler: Seed wird automatisch erkannt.", width / 2, sy + 6, 0xFFFFFFFF);
 		}
 		if (ModConfig.get().overlaySlime && minecraft.level != null && !SlimeChunks.available(minecraft)) {
-			g.centeredText(font, "§eSlime-Chunks: nur in der Oberwelt und nur mit bekanntem Seed.", width / 2, sy + 36, 0xFFFFFFFF);
+			g.centeredText(font, "§eSlime-Chunks: nur in der Oberwelt und nur mit bekanntem Seed.", width / 2, sy + 104, 0xFFFFFFFF);
 		}
-		g.centeredText(font, "§7Erkannte Strukturen: " + Structures.count(), width / 2, sy + 76, 0xFFFFFFFF);
+		g.centeredText(font, "§7Erkannte Strukturen: " + Structures.count(), width / 2, sy + 90, 0xFFFFFFFF);
 	}
 
 	@Override

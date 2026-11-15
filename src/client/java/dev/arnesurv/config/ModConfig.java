@@ -61,6 +61,8 @@ public class ModConfig {
 	public boolean overlayGridWorldMap = true;
 	public boolean overlaySlime = false;
 	public boolean overlayStructures = true;
+	/** Strukturtypen (Enum-Namen), die nicht angezeigt werden sollen. */
+	public java.util.Set<String> hiddenStructures = new java.util.HashSet<>();
 	/** Seed pro Server (Schlüssel = Server-Name aus WaypointManager.worldKey), für Slime-Chunks. */
 	public java.util.Map<String, String> serverSeeds = new java.util.HashMap<>();
 
@@ -132,6 +134,7 @@ public class ModConfig {
 		if (minimapPos == null) minimapPos = new ModConfig().minimapPos;
 		if (minimapCaveMode == null) minimapCaveMode = "AUTO";
 		if (serverSeeds == null) serverSeeds = new java.util.HashMap<>();
+		if (hiddenStructures == null) hiddenStructures = new java.util.HashSet<>();
 		configVersion = CURRENT_VERSION;
 	}
 

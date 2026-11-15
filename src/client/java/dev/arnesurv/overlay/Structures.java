@@ -82,9 +82,13 @@ public final class Structures {
 	private Structures() {
 	}
 
+	/** Sichtbare Strukturen dieser Dimension (ausgeblendete Typen fehlen). */
 	public static List<Entry> inDimension(String dimension) {
+		var hidden = ModConfig.get().hiddenStructures;
 		List<Entry> list = new ArrayList<>();
-		for (Entry e : entries) if (dimension.equals(e.dimension)) list.add(e);
+		for (Entry e : entries) {
+			if (dimension.equals(e.dimension) && !hidden.contains(e.type.name())) list.add(e);
+		}
 		return list;
 	}
 

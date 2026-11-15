@@ -173,6 +173,9 @@ final class DevAutoTest {
 				inv.setItem((Integer) it[0], new ItemStack((net.minecraft.world.item.Item) it[1], (Integer) it[2]));
 			}
 			sp.inventoryMenu.sendAllDataToRemote();
+			// Status-Effekte, damit man sieht, ob die Minimap ausweicht
+			sp.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SPEED, 20 * 120));
+			sp.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS, 20 * 120));
 		});
 		testChunks = new int[][]{{(px + 40) >> 4, pz >> 4}, {(px - 30) >> 4, (pz + 30) >> 4}};
 	}

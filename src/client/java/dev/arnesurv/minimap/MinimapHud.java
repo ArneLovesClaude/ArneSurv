@@ -48,6 +48,11 @@ public final class MinimapHud extends MovableHud {
 		return ModConfig.get().minimapEnabled;
 	}
 
+	@Override
+	protected boolean avoidsStatusEffects() {
+		return true;
+	}
+
 	private int size() {
 		int s = ModConfig.get().minimapSize;
 		return s - (s % 2);
