@@ -40,6 +40,19 @@ public class ModConfig {
 	public boolean compassEnabled = true;
 	public dev.arnesurv.hud.HudPos compassPos = new dev.arnesurv.hud.HudPos(0.5f, 0f, 1f);
 
+	// ---- Modul: Minimap ----
+	public boolean minimapEnabled = true;
+	public boolean minimapRound = false;
+	public boolean minimapRotate = true;
+	public int minimapSize = 120;
+	/** Index in MinimapHud.ZOOM_LEVELS */
+	public int minimapZoom = 1;
+	/** AUTO, ON oder OFF */
+	public String minimapCaveMode = "AUTO";
+	public boolean minimapPlayers = true;
+	public boolean minimapWaypoints = true;
+	public dev.arnesurv.hud.HudPos minimapPos = new dev.arnesurv.hud.HudPos(1f, 0f, 1f);
+
 	// ---- Modul: Waypoints ----
 	public boolean waypointsEnabled = true;
 	public boolean deathWaypoints = true;
@@ -83,6 +96,8 @@ public class ModConfig {
 		}
 		if (infoPos == null) infoPos = new ModConfig().infoPos;
 		if (compassPos == null) compassPos = new ModConfig().compassPos;
+		if (minimapPos == null) minimapPos = new ModConfig().minimapPos;
+		if (minimapCaveMode == null) minimapCaveMode = "AUTO";
 		configVersion = CURRENT_VERSION;
 	}
 

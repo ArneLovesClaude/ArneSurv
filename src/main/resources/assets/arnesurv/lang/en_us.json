@@ -3,5 +3,7 @@
 	"key.categories.arnesurv.main": "ArneSurv",
 	"key.arnesurv.menu": "Open ArneSurv menu",
 	"key.arnesurv.waypoints": "Waypoint list",
-	"key.arnesurv.new_waypoint": "New waypoint here"
+	"key.arnesurv.new_waypoint": "New waypoint here",
+	"key.arnesurv.zoom_in": "Minimap zoom in",
+	"key.arnesurv.zoom_out": "Minimap zoom out"
 }

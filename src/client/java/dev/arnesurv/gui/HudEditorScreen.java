@@ -5,6 +5,7 @@ import dev.arnesurv.hud.CompassHud;
 import dev.arnesurv.hud.HudPos;
 import dev.arnesurv.hud.InfoHud;
 import dev.arnesurv.hud.MovableHud;
+import dev.arnesurv.minimap.MinimapHud;
 import dev.arnesurv.waypoint.WaypointColors;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class HudEditorScreen extends Screen {
 	private final Screen parent;
-	private final List<MovableHud> elements = List.of(InfoHud.INSTANCE, CompassHud.INSTANCE);
+	private final List<MovableHud> elements = List.of(MinimapHud.INSTANCE, InfoHud.INSTANCE, CompassHud.INSTANCE);
 
 	private MovableHud dragging;
 	private double grabX, grabY;
@@ -33,22 +34,31 @@ public class HudEditorScreen extends Screen {
 	@Override
 	protected void init() {
 		ModConfig c = ModConfig.get();
-		int w = 120, y = height - 28, total = w * 4 + 12, x = width / 2 - total / 2;
+		// Bei schmalen Fenstern zwei Reihen à zwei Knöpfe
+		boolean twoRows = width < 4 * 120 + 12 + 8;
+		int w = 120, perRow = twoRows ? 2 : 4;
+		int total = w * perRow + 4 * (perRow - 1), x0 = width / 2 - total / 2;
+		int y0 = height - (twoRows ? 50 : 28);
+		int[][] slots = new int[4][];
+		for (int i = 0; i < 4; i++) {
+			slots[i] = new int[]{x0 + (i % perRow) * (w + 4), y0 + (i / perRow) * 24};
+		}
 
 		addRenderableWidget(Button.builder(colorLabel(), b -> {
 			c.hudTextColor = WaypointColors.next(c.hudTextColor);
 			ModConfig.save();
 			b.setMessage(colorLabel());
-		}).bounds(x, y, w, 20).build());
-		addRenderableWidget(ToggleButton.create("Hintergrund", () -> c.hudBackground, v -> c.hudBackground = v, x + w + 4, y, w));
+		}).bounds(slots[0][0], slots[0][1], w, 20).build());
+		addRenderableWidget(ToggleButton.create("Hintergrund", () -> c.hudBackground, v -> c.hudBackground = v, slots[1][0], slots[1][1], w));
 		addRenderableWidget(Button.builder(Component.literal("Zurücksetzen"), b -> {
 			ModConfig d = new ModConfig();
 			c.infoPos = d.infoPos;
 			c.compassPos = d.compassPos;
+			c.minimapPos = d.minimapPos;
 			ModConfig.save();
-		}).bounds(x + 2 * (w + 4), y, w, 20).build());
+		}).bounds(slots[2][0], slots[2][1], w, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("Fertig"), b -> onClose())
-			.bounds(x + 3 * (w + 4), y, w, 20).build());
+			.bounds(slots[3][0], slots[3][1], w, 20).build());
 	}
 
 	private Component colorLabel() {
