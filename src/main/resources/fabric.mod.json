@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"id": "arnesurv",
+	"version": "${version}",
+	"name": "ArneSurv",
+	"description": "Survival-Essentials für jeden Server: Minimap, Weltkarte, Waypoints, HUD und Komfort-Funktionen.",
+	"authors": [
+		"ArneSurv"
+	],
+	"license": "All-Rights-Reserved",
+	"icon": "assets/arnesurv/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.arnesurv.ArneSurv"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
