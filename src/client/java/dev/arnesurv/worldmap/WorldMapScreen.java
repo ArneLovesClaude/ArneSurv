@@ -87,6 +87,7 @@ public class WorldMapScreen extends Screen {
 		drawChunkOverlays(g);
 		drawStructures(g, mouseX, mouseY);
 		drawWaypoints(g, mouseX, mouseY);
+		drawOtherPlayers(g, mouseX, mouseY);
 		drawPlayer(g);
 	}
 
@@ -205,6 +206,22 @@ public class WorldMapScreen extends Screen {
 				g.fill(x - tw / 2 - 2, y + 6, x + tw / 2 + 2, y + 17, 0xA0000000);
 				g.centeredText(font, label, x, y + 8, w == hovered ? 0xFFFFFF55 : 0xFFFFFFFF);
 			}
+		}
+	}
+
+	/** Andere Spieler (nur die, die der Server dem Client gerade schickt – also in Sichtweite). */
+	private void drawOtherPlayers(GuiGraphicsExtractor g, int mouseX, int mouseY) {
+		if (!ModConfig.get().minimapPlayers) return;
+		for (var other : minecraft.level.players()) {
+			if (other == minecraft.player) continue;
+			int x = Math.round(screenX(other.getX())), y = Math.round(screenY(other.getZ()));
+			if (x < -10 || y < -10 || x > width + 10 || y > height + 10) continue;
+			g.fill(x - 3, y - 3, x + 3, y + 3, 0xFF000000);
+			g.fill(x - 2, y - 2, x + 2, y + 2, 0xFFFFFFFF);
+			String name = other.getGameProfile().name();
+			int tw = font.width(name);
+			g.fill(x - tw / 2 - 2, y - 15, x + tw / 2 + 2, y - 4, 0xA0000000);
+			g.centeredText(font, name, x, y - 13, 0xFFFFFFFF);
 		}
 	}
 

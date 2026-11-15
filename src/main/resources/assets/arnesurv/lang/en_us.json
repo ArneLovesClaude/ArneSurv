@@ -6,5 +6,6 @@
 	"key.arnesurv.new_waypoint": "New waypoint here",
 	"key.arnesurv.zoom_in": "Minimap zoom in",
 	"key.arnesurv.zoom_out": "Minimap zoom out",
-	"key.arnesurv.world_map": "World map"
+	"key.arnesurv.world_map": "World map",
+	"key.arnesurv.zoom": "Zoom (hold)"
 }

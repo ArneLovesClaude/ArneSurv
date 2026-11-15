@@ -64,7 +64,29 @@ public class ModConfig {
 	/** Seed pro Server (Schlüssel = Server-Name aus WaypointManager.worldKey), für Slime-Chunks. */
 	public java.util.Map<String, String> serverSeeds = new java.util.HashMap<>();
 
+	// ---- Modul: Komfort ----
+	public boolean zoomEnabled = true;
+	public float zoomDefault = 4f;
+	public boolean autoToolEnabled = true;
+	public boolean autoToolSwitchBack = true;
+	public boolean sneakInInventory = true;
+	public boolean inventoryButtons = true;
+	public int inventoryClicksPerTick = 4;
+
+	// ---- Modul: Chat ----
+	public boolean chatTimestamps = true;
+	public boolean chatMentions = true;
+	public int chatHistoryLines = 500;
+
+	// ---- Modul: Statistiken ----
+	public boolean statsEnabled = true;
+
+	// ---- Modul: Updates ----
+	public boolean updateCheck = true;
+
 	// ---- Modul: Waypoints ----
+	public boolean waypointMarkers = true;
+	public int waypointMarkerMaxDistance = 2000;
 	public boolean waypointsEnabled = true;
 	public boolean deathWaypoints = true;
 	public int maxDeathWaypoints = 5;

@@ -2,6 +2,7 @@ package dev.arnesurv.gui;
 
 import dev.arnesurv.waypoint.Waypoint;
 import dev.arnesurv.waypoint.WaypointManager;
+import dev.arnesurv.waypoint.WaypointShare;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -57,6 +58,15 @@ public class WaypointListScreen extends Screen {
 				WaypointManager.save();
 				rebuildWidgets();
 			}).bounds(bx - 154, y, 60, 20).build());
+			if (minecraft.getSingleplayerServer() == null) {
+				addRenderableWidget(Button.builder(Component.literal("Teilen"), b -> {
+					WaypointShare.share(w);
+					minecraft.gui.setScreen(null);
+				}).bounds(bx - 202, y, 46, 20)
+					.tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
+						"Schickt den Waypoint in den Chat. Wer ArneSurv hat, kann ihn mit einem Klick übernehmen.")))
+					.build());
+			}
 			y += ROW_HEIGHT;
 		}
 
