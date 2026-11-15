@@ -39,6 +39,13 @@ final class DevAutoTest {
 				c.minimapRound = false;
 				c.minimapRotate = true;
 				c.minimapCaveMode = "OFF";
+				c.overlaySlime = true;
+				c.overlayGridMinimap = true;
+				placeTestBlocks(mc);
+			}
+			case 60 -> {
+				// Die Testblöcke wurden erst nach dem ersten Scan gesetzt – Chunks erneut prüfen
+				for (int[] ch : testChunks) dev.arnesurv.overlay.Structures.devRescan(mc.level, ch[0], ch[1]);
 			}
 			case 200 -> shot(mc, "1_eckig");
 			case 210 -> {
@@ -68,6 +75,24 @@ final class DevAutoTest {
 			}
 		}
 	}
+
+	/** Setzt eine Glocke und einen Spawner in einen noch nicht gescannten Chunk, um die Strukturerkennung zu testen. */
+	private static void placeTestBlocks(Minecraft mc) {
+		var server = mc.getSingleplayerServer();
+		if (server == null) return;
+		int px = mc.player.getBlockX(), pz = mc.player.getBlockZ();
+		server.execute(() -> {
+			var level = server.overworld();
+			level.getChunk((px + 40) >> 4, pz >> 4); // Chunk laden, damit die Höhe stimmt
+			var bell = new net.minecraft.core.BlockPos(px + 40, level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, px + 40, pz), pz);
+			level.setBlockAndUpdate(bell, net.minecraft.world.level.block.Blocks.BELL.defaultBlockState());
+			var spawner = new net.minecraft.core.BlockPos(px - 30, 20, pz + 30);
+			level.setBlockAndUpdate(spawner, net.minecraft.world.level.block.Blocks.SPAWNER.defaultBlockState());
+		});
+		testChunks = new int[][]{{(px + 40) >> 4, pz >> 4}, {(px - 30) >> 4, (pz + 30) >> 4}};
+	}
+
+	private static int[][] testChunks;
 
 	private static int titleTicks;
 	private static boolean createRequested;

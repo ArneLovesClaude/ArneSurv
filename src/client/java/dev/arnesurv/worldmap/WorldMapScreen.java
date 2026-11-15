@@ -1,6 +1,9 @@
 package dev.arnesurv.worldmap;
 
+import dev.arnesurv.config.ModConfig;
 import dev.arnesurv.gui.WaypointEditScreen;
+import dev.arnesurv.overlay.SlimeChunks;
+import dev.arnesurv.overlay.Structures;
 import dev.arnesurv.waypoint.Waypoint;
 import dev.arnesurv.waypoint.WaypointManager;
 import net.minecraft.client.KeyMapping;
@@ -81,6 +84,8 @@ public class WorldMapScreen extends Screen {
 		if (minecraft.player == null || minecraft.level == null) return;
 		if (++frames % 120 == 0) missing.clear(); // ab und zu prüfen, ob neue Regionen da sind
 		drawRegions(g);
+		drawChunkOverlays(g);
+		drawStructures(g, mouseX, mouseY);
 		drawWaypoints(g, mouseX, mouseY);
 		drawPlayer(g);
 	}
@@ -117,6 +122,63 @@ public class WorldMapScreen extends Screen {
 			}
 		}
 		g.pose().popMatrix();
+	}
+
+	/** Chunk-Gitter und Slime-Chunks – nur ab einer gewissen Zoomstufe, sonst wird es Matsch. */
+	private void drawChunkOverlays(GuiGraphicsExtractor g) {
+		ModConfig cfg = ModConfig.get();
+		int minCX = (int) Math.floor(worldX(0)) >> 4, maxCX = (int) Math.floor(worldX(width)) >> 4;
+		int minCZ = (int) Math.floor(worldZ(0)) >> 4, maxCZ = (int) Math.floor(worldZ(height)) >> 4;
+
+		if (cfg.overlaySlime && scale >= 0.25f && SlimeChunks.available(minecraft)) {
+			long seed = SlimeChunks.seed(minecraft);
+			for (int cx = minCX; cx <= maxCX; cx++) {
+				for (int cz = minCZ; cz <= maxCZ; cz++) {
+					if (!SlimeChunks.isSlimeChunk(seed, cx, cz)) continue;
+					int x0 = Math.round(screenX(cx << 4)), z0 = Math.round(screenY(cz << 4));
+					int x1 = Math.round(screenX((cx + 1) << 4)), z1 = Math.round(screenY((cz + 1) << 4));
+					g.fill(x0, z0, x1, z1, 0x5540FF40);
+				}
+			}
+		}
+		if (cfg.overlayGridWorldMap && scale >= 1f) {
+			int alpha = scale >= 2f ? 0x50000000 : 0x30000000;
+			for (int cx = minCX; cx <= maxCX + 1; cx++) {
+				int x = Math.round(screenX(cx << 4));
+				g.fill(x, 0, x + 1, height, (cx & 31) == 0 ? 0x80000000 : alpha);
+			}
+			for (int cz = minCZ; cz <= maxCZ + 1; cz++) {
+				int y = Math.round(screenY(cz << 4));
+				g.fill(0, y, width, y + 1, (cz & 31) == 0 ? 0x80000000 : alpha);
+			}
+		}
+	}
+
+	private Structures.Entry hoveredStructure(double mx, double my) {
+		if (!ModConfig.get().overlayStructures) return null;
+		for (Structures.Entry e : Structures.inDimension(minecraft.level.dimension().identifier().toString())) {
+			float x = screenX(e.x + 0.5), y = screenY(e.z + 0.5);
+			if (Math.abs(mx - x) <= 5 && Math.abs(my - y) <= 5) return e;
+		}
+		return null;
+	}
+
+	private void drawStructures(GuiGraphicsExtractor g, int mouseX, int mouseY) {
+		if (!ModConfig.get().overlayStructures) return;
+		Structures.Entry hovered = hoveredStructure(mouseX, mouseY);
+		for (Structures.Entry e : Structures.inDimension(minecraft.level.dimension().identifier().toString())) {
+			int x = Math.round(screenX(e.x + 0.5)), y = Math.round(screenY(e.z + 0.5));
+			if (x < -20 || y < -20 || x > width + 20 || y > height + 20) continue;
+			g.fill(x - 5, y - 6, x + 6, y + 6, 0xD0000000);
+			g.outline(x - 5, y - 6, 11, 12, e.type.color);
+			g.centeredText(font, e.type.letter, x + 1, y - 4, e.type.color);
+			if (e == hovered) {
+				String label = e.type.label + " §7(" + e.x + ", " + e.y + ", " + e.z + ")";
+				int tw = font.width(label);
+				g.fill(x - tw / 2 - 3, y + 8, x + tw / 2 + 3, y + 19, 0xD0000000);
+				g.centeredText(font, label, x, y + 10, 0xFFFFFFFF);
+			}
+		}
 	}
 
 	private Waypoint hoveredWaypoint(double mx, double my) {
@@ -200,8 +262,14 @@ public class WorldMapScreen extends Screen {
 		}
 		if (event.button() == 1) {
 			Waypoint w = hoveredWaypoint(event.x(), event.y());
+			Structures.Entry s = w == null ? hoveredStructure(event.x(), event.y()) : null;
 			if (w != null) {
 				minecraft.gui.setScreen(new WaypointEditScreen(this, w));
+			} else if (s != null) {
+				// Rechtsklick auf Struktur: Waypoint mit passendem Namen vorschlagen
+				WaypointEditScreen edit = WaypointEditScreen.forPosition(this, s.x, s.y, s.z);
+				edit.setSuggestedName(s.type.label);
+				minecraft.gui.setScreen(edit);
 			} else {
 				int x = (int) Math.floor(worldX(event.x())), z = (int) Math.floor(worldZ(event.y()));
 				int y = minecraft.level.hasChunk(x >> 4, z >> 4)

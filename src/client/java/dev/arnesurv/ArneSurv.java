@@ -9,6 +9,7 @@ import dev.arnesurv.hud.CompassHud;
 import dev.arnesurv.hud.InfoHud;
 import dev.arnesurv.minimap.MapCache;
 import dev.arnesurv.minimap.MinimapHud;
+import dev.arnesurv.overlay.Structures;
 import dev.arnesurv.worldmap.WorldMapScreen;
 import dev.arnesurv.worldmap.WorldMapStore;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -78,6 +79,7 @@ public class ArneSurv implements ClientModInitializer {
 	private static void onTick(Minecraft mc) {
 		WaypointManager.tick(mc);
 		WorldMapStore.tick(mc);
+		Structures.tick(mc);
 		MapCache.tick(mc);
 		MinimapHud.INSTANCE.tick(mc);
 

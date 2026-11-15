@@ -21,12 +21,14 @@ public class ArneSurvScreen extends Screen {
 			b -> minecraft.gui.setScreen(new WaypointListScreen(this))).bounds(x, y, w, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("Minimap"),
 			b -> minecraft.gui.setScreen(new MinimapSettingsScreen(this))).bounds(x, y + 24, w, 20).build());
+		addRenderableWidget(Button.builder(Component.literal("Overlays (Slime, Gitter, Strukturen)"),
+			b -> minecraft.gui.setScreen(new OverlaySettingsScreen(this))).bounds(x, y + 48, w, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("HUD anpassen (verschieben)"),
-			b -> minecraft.gui.setScreen(new HudEditorScreen(this))).bounds(x, y + 48, w, 20).build());
+			b -> minecraft.gui.setScreen(new HudEditorScreen(this))).bounds(x, y + 72, w, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("Einstellungen & Module"),
-			b -> minecraft.gui.setScreen(new SettingsScreen(this))).bounds(x, y + 72, w, 20).build());
+			b -> minecraft.gui.setScreen(new SettingsScreen(this))).bounds(x, y + 96, w, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("Fertig"),
-			b -> onClose()).bounds(x, y + 108, w, 20).build());
+			b -> onClose()).bounds(x, y + 132, w, 20).build());
 	}
 
 	@Override

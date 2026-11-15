@@ -1,6 +1,7 @@
 package dev.arnesurv.minimap;
 
 import dev.arnesurv.config.ModConfig;
+import dev.arnesurv.overlay.Structures;
 import dev.arnesurv.worldmap.WorldMapStore;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
@@ -117,10 +118,11 @@ public final class MapCache {
 			Tile tile = TILES.get(key);
 			int refresh = dist <= RADIUS ? REFRESH_TICKS : FAR_REFRESH_TICKS;
 			if (tile != null && tickCounter - tile.computedAt < refresh) continue;
-			if (!level.hasChunk(cx, cz)) continue;
+			if (!level.hasChunk(cx, cz) || level.getChunk(cx, cz).isEmpty()) continue; // noch nicht wirklich geladen
 			if (tile == null) {
 				tile = new Tile();
 				TILES.put(key, tile);
+				Structures.scan(level, cx, cz);
 			}
 			compute(level, cx, cz, mode, tile);
 			tile.computedAt = tickCounter;

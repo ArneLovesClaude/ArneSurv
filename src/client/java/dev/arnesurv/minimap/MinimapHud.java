@@ -4,6 +4,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dev.arnesurv.config.ModConfig;
 import dev.arnesurv.hud.HudPos;
 import dev.arnesurv.hud.MovableHud;
+import dev.arnesurv.overlay.SlimeChunks;
+import dev.arnesurv.overlay.Structures;
 import dev.arnesurv.waypoint.Waypoint;
 import dev.arnesurv.waypoint.WaypointManager;
 import net.minecraft.client.Minecraft;
@@ -83,13 +85,44 @@ public final class MinimapHud extends MovableHud {
 		centerZ = mc.player.getBlockZ();
 		NativeImage img = texture.getPixels();
 		int x0 = centerX - TEX / 2, z0 = centerZ - TEX / 2;
+		ModConfig cfg = ModConfig.get();
+		boolean grid = cfg.overlayGridMinimap;
+
+		// Slime-Chunks einmal pro Chunk statt pro Pixel berechnen
+		int cx0 = x0 >> 4, cz0 = z0 >> 4, chunks = TEX / 16 + 2;
+		boolean[] slime = null;
+		if (cfg.overlaySlime && SlimeChunks.available(mc)) {
+			long seed = SlimeChunks.seed(mc);
+			slime = new boolean[chunks * chunks];
+			for (int a = 0; a < chunks; a++)
+				for (int b = 0; b < chunks; b++) slime[b * chunks + a] = SlimeChunks.isSlimeChunk(seed, cx0 + a, cz0 + b);
+		}
+
 		for (int j = 0; j < TEX; j++) {
 			for (int i = 0; i < TEX; i++) {
-				img.setPixel(i, j, MapCache.colorAt(x0 + i, z0 + j));
+				int x = x0 + i, z = z0 + j;
+				int c = MapCache.colorAt(x, z);
+				if (c != 0) {
+					if (slime != null && slime[((z >> 4) - cz0) * chunks + ((x >> 4) - cx0)]) c = blend(c, 0xFF40FF40, 0.35f);
+					if (grid && ((x & 15) == 0 || (z & 15) == 0)) c = BlockColorCache.shade(c, 0.7f);
+				}
+				img.setPixel(i, j, c);
 			}
 		}
 		texture.upload();
 		needsRebuild = false;
+	}
+
+	/** Erzwingt einen Neuaufbau, z.B. nach Änderung der Overlay-Einstellungen. */
+	public void invalidate() {
+		needsRebuild = true;
+	}
+
+	static int blend(int a, int b, float t) {
+		int r = Math.round(((a >> 16) & 0xFF) * (1 - t) + ((b >> 16) & 0xFF) * t);
+		int g = Math.round(((a >> 8) & 0xFF) * (1 - t) + ((b >> 8) & 0xFF) * t);
+		int bl = Math.round((a & 0xFF) * (1 - t) + (b & 0xFF) * t);
+		return 0xFF000000 | r << 16 | g << 8 | bl;
 	}
 
 	@Override
@@ -141,6 +174,7 @@ public final class MinimapHud extends MovableHud {
 		drawBorder(g, d, round);
 		drawNorth(g, mc, d, angle);
 		if (cfg.waypointsEnabled && cfg.minimapWaypoints) drawWaypoints(g, mc, player, d, f, angle);
+		if (cfg.overlayStructures) drawStructures(g, mc, player, d, f, angle);
 		if (cfg.minimapPlayers) drawPlayers(g, mc, player, d, f, angle);
 		drawArrow(g, d, cfg.minimapRotate ? 0f : (float) Math.toRadians(player.getYRot() + 180f));
 
@@ -221,6 +255,24 @@ public final class MinimapHud extends MovableHud {
 			int x = Math.round(p[0]), y = Math.round(p[1]);
 			g.fill(x - 3, y - 3, x + 3, y + 3, 0xFF000000);
 			g.fill(x - 2, y - 2, x + 2, y + 2, w.color);
+		}
+	}
+
+	/** Strukturen als kleine Buchstaben-Symbole – nur, wenn sie auf der Karte liegen (nicht am Rand). */
+	private void drawStructures(GuiGraphicsExtractor g, Minecraft mc, LocalPlayer player, int d, float f, float angle) {
+		boolean round = ModConfig.get().minimapRound;
+		float maxDist = d / 2f / f;
+		for (Structures.Entry e : Structures.inDimension(mc.level.dimension().identifier().toString())) {
+			double dx = e.x + 0.5 - player.getX(), dz = e.z + 0.5 - player.getZ();
+			if (Math.abs(dx) > maxDist * 1.42 || Math.abs(dz) > maxDist * 1.42) continue;
+			float[] p = toScreen(dx, dz, d, f, angle, round, 0f);
+			float cx = p[0] - d / 2f, cy = p[1] - d / 2f;
+			// am Rand geklemmt = eigentlich außerhalb → weglassen
+			double len = Math.sqrt(dx * dx + dz * dz) * f;
+			if (len > d / 2f - 4) continue;
+			int x = Math.round(p[0]), y = Math.round(p[1]);
+			g.fill(x - 4, y - 5, x + 5, y + 5, 0xC0000000);
+			g.centeredText(mc.font, e.type.letter, x + 1, y - 4, e.type.color);
 		}
 	}
 

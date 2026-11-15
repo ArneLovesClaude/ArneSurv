@@ -56,6 +56,14 @@ public class ModConfig {
 	// ---- Modul: Weltkarte ----
 	public boolean worldMapEnabled = true;
 
+	// ---- Modul: Overlays ----
+	public boolean overlayGridMinimap = false;
+	public boolean overlayGridWorldMap = true;
+	public boolean overlaySlime = false;
+	public boolean overlayStructures = true;
+	/** Seed pro Server (Schlüssel = Server-Name aus WaypointManager.worldKey), für Slime-Chunks. */
+	public java.util.Map<String, String> serverSeeds = new java.util.HashMap<>();
+
 	// ---- Modul: Waypoints ----
 	public boolean waypointsEnabled = true;
 	public boolean deathWaypoints = true;
@@ -101,6 +109,7 @@ public class ModConfig {
 		if (compassPos == null) compassPos = new ModConfig().compassPos;
 		if (minimapPos == null) minimapPos = new ModConfig().minimapPos;
 		if (minimapCaveMode == null) minimapCaveMode = "AUTO";
+		if (serverSeeds == null) serverSeeds = new java.util.HashMap<>();
 		configVersion = CURRENT_VERSION;
 	}
 

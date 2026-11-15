@@ -48,6 +48,10 @@ public class WaypointEditScreen extends Screen {
 		return s;
 	}
 
+	public void setSuggestedName(String name) {
+		draft.name = name;
+	}
+
 	private static Waypoint copy(Waypoint w) {
 		Waypoint c = new Waypoint(w.name, w.x, w.y, w.z, w.dimension, w.color);
 		c.visible = w.visible;
