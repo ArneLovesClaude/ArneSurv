@@ -130,6 +130,63 @@ final class DevAutoTest {
 			case 380 -> shot(mc, "09_weltkarte");
 			case 390 -> {
 				mc.gui.setScreen(null);
+				setupComfortTests(mc);
+				var p = mc.player;
+				WaypointManager.add(new Waypoint("Ferne Basis", p.getBlockX() + 25, p.getBlockY(), p.getBlockZ() + 120,
+					mc.level.dimension().identifier().toString(), 0xFF55FFFF));
+			}
+			// --- Auto-Tool: Stein vor dem Spieler, Spitzhacke in Slot 3 ---
+			case 410 -> {
+				mc.player.getInventory().setSelectedSlot(0);
+				mc.player.setYRot(0f);
+				mc.player.setXRot(4f);
+			}
+			case 415 -> mc.options.keyAttack.setDown(true);
+			case 425 -> ArneSurv.LOGGER.info("AUTOTEST AutoTool beim Abbauen: Slot {} ({}) – erwartet 2 (Spitzhacke), Ziel: {}",
+				mc.player.getInventory().getSelectedSlot(), mc.player.getInventory().getSelectedItem().getItem(), mc.hitResult);
+			case 430 -> mc.options.keyAttack.setDown(false);
+			case 435 -> ArneSurv.LOGGER.info("AUTOTEST AutoTool danach: Slot {} – erwartet 0",
+				mc.player.getInventory().getSelectedSlot());
+			// --- Einlagern in eine Kiste ---
+			case 440 -> openTestChest(mc);
+			case 455 -> InventoryTweaks.devQuickStack(mc);
+			case 480 -> {
+				logChest(mc);
+				shot(mc, "10_kiste_eingelagert");
+			}
+			// --- Sneak bleibt im Inventar ---
+			case 490 -> {
+				mc.gui.setScreen(null);
+				mc.options.toggleCrouch().set(false);
+				mc.options.keyShift.setDown(true);
+			}
+			case 500 -> mc.gui.setScreen(new InventoryScreen(mc.player));
+			case 510 -> ArneSurv.LOGGER.info("AUTOTEST Sneak im Inventar: {} – erwartet true", mc.player.isShiftKeyDown());
+			case 515 -> mc.gui.setScreen(null);
+			case 522 -> ArneSurv.LOGGER.info("AUTOTEST Sneak nach dem Schließen: {} – erwartet false (Taste nicht gedrückt)",
+				mc.options.keyShift.isDown());
+			// --- Statistik-Aufzeichnung löschen ---
+			case 525 -> {
+				int removed = dev.arnesurv.stats.StatsRecorder.deleteSince(0L);
+				ArneSurv.LOGGER.info("AUTOTEST Statistik geloescht: {} Minuten-Pakete, Rest: {}", removed,
+					dev.arnesurv.stats.StatsRecorder.sumSince(0L));
+			}
+			// --- Lichtsäulen + Chat-Formate ---
+			case 530 -> {
+				mc.player.setYRot(10f);
+				mc.player.setXRot(-15f);
+			}
+			case 545 -> shot(mc, "11_lichtsaeulen");
+			case 550 -> {
+				String n = mc.player.getGameProfile().name();
+				ArneSurv.LOGGER.info("AUTOTEST Chatformate: doppelpunkt={} rang={} pfeil={} system={} tod={}",
+					dev.arnesurv.comfort.ChatTweaks.isMention("Kollege: hi " + n, n),
+					dev.arnesurv.comfort.ChatTweaks.isMention("[Admin] Kollege » " + n + " komm", n),
+					dev.arnesurv.comfort.ChatTweaks.isMention("Kollege > yo " + n, n),
+					dev.arnesurv.comfort.ChatTweaks.isMention(n + " joined the game", n),
+					dev.arnesurv.comfort.ChatTweaks.isMention(n + " was slain by Zombie", n));
+			}
+			case 560 -> {
 				c.minimapCaveMode = "AUTO";
 				c.overlaySlime = false;
 				ModConfig.save();
@@ -178,6 +235,60 @@ final class DevAutoTest {
 			sp.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS, 20 * 120));
 		});
 		testChunks = new int[][]{{(px + 40) >> 4, pz >> 4}, {(px - 30) >> 4, (pz + 30) >> 4}};
+	}
+
+	private static BlockPos chestPos;
+
+	/** Stein vor dem Spieler, Werkzeuge in der Hotbar, Kiste mit einem Bruchstein daneben. */
+	private static void setupComfortTests(Minecraft mc) {
+		var server = mc.getSingleplayerServer();
+		if (server == null) return;
+		BlockPos p = mc.player.blockPosition();
+		chestPos = p.offset(-2, 0, 0);
+		BlockPos stone = p.offset(0, 1, 2);
+		server.execute(() -> {
+			var level = server.overworld();
+			level.setBlockAndUpdate(stone, Blocks.STONE.defaultBlockState());
+			level.setBlockAndUpdate(stone.above(), Blocks.AIR.defaultBlockState());
+			level.setBlockAndUpdate(p.offset(0, 1, 1), Blocks.AIR.defaultBlockState());
+			level.setBlockAndUpdate(chestPos, Blocks.CHEST.defaultBlockState());
+			if (level.getBlockEntity(chestPos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
+				chest.setItem(0, new ItemStack(Items.COBBLESTONE, 1));
+			}
+			var sp = server.getPlayerList().getPlayers().get(0);
+			var inv = sp.getInventory();
+			inv.setItem(0, new ItemStack(Items.DIRT, 16));
+			inv.setItem(1, new ItemStack(Items.DIAMOND_SHOVEL));
+			inv.setItem(2, new ItemStack(Items.DIAMOND_PICKAXE));
+			inv.setItem(3, new ItemStack(Items.DIAMOND_AXE));
+			sp.inventoryMenu.sendAllDataToRemote();
+		});
+	}
+
+	private static void openTestChest(Minecraft mc) {
+		var server = mc.getSingleplayerServer();
+		if (server == null || chestPos == null) return;
+		server.execute(() -> {
+			var sp = server.getPlayerList().getPlayers().get(0);
+			if (server.overworld().getBlockEntity(chestPos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
+				sp.openMenu(chest);
+			}
+		});
+	}
+
+	private static void logChest(Minecraft mc) {
+		if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> acs)) {
+			ArneSurv.LOGGER.info("AUTOTEST Kiste: kein Kistenfenster offen ({})", mc.gui.screen());
+			return;
+		}
+		int inChest = 0, inPlayer = 0;
+		for (var slot : acs.getMenu().slots) {
+			ItemStack s = slot.getItem();
+			if (!s.is(Items.COBBLESTONE)) continue;
+			if (slot.container instanceof net.minecraft.world.entity.player.Inventory) inPlayer += s.getCount();
+			else inChest += s.getCount();
+		}
+		ArneSurv.LOGGER.info("AUTOTEST Einlagern: Bruchstein in Kiste {} (vorher 1), im Inventar {} (vorher 134)", inChest, inPlayer);
 	}
 
 	private static int titleTicks;

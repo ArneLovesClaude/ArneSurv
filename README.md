@@ -7,7 +7,7 @@ Survival-Essentials für Minecraft **26.3** (Fabric). Rein clientseitig – funk
 **Karte & Orientierung**
 - **Minimap** – eckig oder rund, dreht mit, Farben aus den echten Block-Texturen (auch mit Resource Packs), Höhlenmodus (automatisch, im Nether immer), Waypoints, Spieler und Strukturen; weicht Trank-Symbolen aus
 - **Weltkarte** – zeigt alles, was du schon gesehen hast (pro Welt/Server gespeichert), Zoom, Verschieben, Spieler, Rechtsklick setzt Waypoints
-- **Waypoints** – anlegen, bearbeiten, verstecken, löschen; automatischer Todes-Waypoint; Marker direkt in der Spielwelt; per Chat teilen (andere übernehmen sie mit einem Klick)
+- **Waypoints** – anlegen, bearbeiten, verstecken, löschen; automatischer Todes-Waypoint; Marker und Lichtsäulen direkt in der Spielwelt; per Chat teilen (andere übernehmen sie mit einem Klick)
 - **Overlays** – Slime-Chunks, Chunk-Gitter, automatisch erkannte Strukturen (Dörfer, Festungen, Spawner, Trial Chambers, Antike Städte, Bastionen, Netherfestungen, Endstädte, Ozeanmonumente)
 - **Info-Anzeige & Kompass** – Koordinaten, Biom, Richtung; optional Portal-Koordinaten, Uhrzeit, Tag, FPS, Ping
 
@@ -16,7 +16,7 @@ Survival-Essentials für Minecraft **26.3** (Fabric). Rein clientseitig – funk
 - **Auto-Tool** – wählt beim Abbauen das passende Werkzeug aus der Hotbar
 - **Inventar/Kiste sortieren** und **Einlagern** (Quick-Stack)
 - **Sprint/Sneak umschalten**, Sneak bleibt im Inventar erhalten
-- **Chat** – Uhrzeit, Erwähnungen mit Ton, längerer Verlauf
+- **Chat** – Uhrzeit, Erwähnungen mit Ton (versteht gängige Server-Chatformate), längerer Verlauf
 - **Screenshot-Galerie** im Spiel
 - **Statistiken** – Vanilla-Statistiken pro Session, heute, Woche, Monat; Aufzeichnung nach Zeitraum löschbar
 - **Update-Hinweis** im Hauptmenü, wenn es eine neue Version gibt

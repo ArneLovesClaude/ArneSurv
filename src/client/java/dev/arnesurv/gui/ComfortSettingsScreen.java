@@ -42,8 +42,9 @@ public class ComfortSettingsScreen extends Screen {
 		addRenderableWidget(ToggleButton.create("Chat-Uhrzeit", () -> c.chatTimestamps, v -> c.chatTimestamps = v, right, y + 24, colW));
 		addRenderableWidget(ToggleButton.create("Erwähnungen", () -> c.chatMentions, v -> c.chatMentions = v, right, y + 48, colW));
 		addRenderableWidget(ToggleButton.create("Waypoints im Spiel", () -> c.waypointMarkers, v -> c.waypointMarkers = v, right, y + 72, colW));
-		addRenderableWidget(ToggleButton.create("Statistik mitschreiben", () -> c.statsEnabled, v -> c.statsEnabled = v, right, y + 96, colW));
-		addRenderableWidget(ToggleButton.create("Update-Hinweis", () -> c.updateCheck, v -> c.updateCheck = v, right, y + 120, colW));
+		addRenderableWidget(ToggleButton.create("Lichtsäulen", () -> c.waypointBeams, v -> c.waypointBeams = v, right, y + 96, colW));
+		addRenderableWidget(ToggleButton.create("Statistik mitschreiben", () -> c.statsEnabled, v -> c.statsEnabled = v, right, y + 120, colW));
+		addRenderableWidget(ToggleButton.create("Update-Hinweis", () -> c.updateCheck, v -> c.updateCheck = v, left, y + 144, colW));
 
 		addRenderableWidget(Button.builder(Component.literal("Fertig"), b -> onClose())
 			.bounds(width / 2 - 100, height - 28, 200, 20).build());

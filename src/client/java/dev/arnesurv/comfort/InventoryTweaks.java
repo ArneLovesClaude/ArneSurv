@@ -202,6 +202,11 @@ public final class InventoryTweaks {
 		}
 	}
 
+	/** Nur für den Entwickler-Autotest: Einlagern im offenen Menü auslösen. */
+	public static void devQuickStack(Minecraft mc) {
+		if (mc.gui.screen() instanceof AbstractContainerScreen<?> acs) quickStack(mc, acs.getMenu());
+	}
+
 	/** Nur für den Entwickler-Autotest: Spielerinventar im offenen Menü sortieren. */
 	public static void devSortPlayer(Minecraft mc) {
 		if (mc.gui.screen() instanceof AbstractContainerScreen<?> acs) sort(mc, acs.getMenu(), playerMainSlots(acs.getMenu()));

@@ -20,19 +20,29 @@ public final class ChatTweaks {
 	private ChatTweaks() {
 	}
 
-	/** Chatnachricht im Format "&lt;Absender&gt; Text" */
-	private static final Pattern CHAT = Pattern.compile("<([^<>\\s]{1,40})> (.*)");
+	/**
+	 * Erkannte Chat-Formate (Gruppe 1 = Absender, Gruppe 2 = Text):
+	 * "&lt;Name&gt; Text" (Vanilla/Paper), "Name: Text", "Name » Text", "Name > Text", "Name | Text" –
+	 * jeweils auch mit vorangestellten Rängen wie "[Admin] Name: Text".
+	 */
+	private static final Pattern[] CHAT_FORMATS = {
+		Pattern.compile("<([^<>\\s]{1,40})> (.*)"),
+		Pattern.compile("^(?:\\[[^\\]]{0,24}\\]\\s*)*(?:[^\\sA-Za-z0-9_]\\s*)?([A-Za-z0-9_]{2,16})\\s*(?::|»|>>|>|->|\\|)\\s+(.*)$")
+	};
 
 	/**
 	 * Erwähnung = jemand anderes schreibt deinen Namen in den Chat.
 	 * Systemnachrichten (z.B. "X hat den Fortschritt … erzielt") zählen nicht.
 	 */
 	public static boolean isMention(String text, String name) {
-		Matcher m = CHAT.matcher(text);
-		if (!m.find()) return false;
-		if (m.group(1).equalsIgnoreCase(name)) return false;
-		return Pattern.compile("(?<![A-Za-z0-9_])" + Pattern.quote(name) + "(?![A-Za-z0-9_])", Pattern.CASE_INSENSITIVE)
-			.matcher(m.group(2)).find();
+		for (Pattern format : CHAT_FORMATS) {
+			Matcher m = format.matcher(text);
+			if (!m.find()) continue;
+			if (m.group(1).equalsIgnoreCase(name)) return false;
+			return Pattern.compile("(?<![A-Za-z0-9_])" + Pattern.quote(name) + "(?![A-Za-z0-9_])", Pattern.CASE_INSENSITIVE)
+				.matcher(m.group(2)).find();
+		}
+		return false;
 	}
 
 	public static Component process(Component message) {

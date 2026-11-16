@@ -89,6 +89,8 @@ public class ModConfig {
 	// ---- Modul: Waypoints ----
 	public boolean waypointMarkers = true;
 	public int waypointMarkerMaxDistance = 2000;
+	public boolean waypointBeams = true;
+	public int waypointBeamMaxDistance = 1000;
 	public boolean waypointsEnabled = true;
 	public boolean deathWaypoints = true;
 	public int maxDeathWaypoints = 5;
