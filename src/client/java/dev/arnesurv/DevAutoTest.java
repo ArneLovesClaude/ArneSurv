@@ -141,9 +141,23 @@ final class DevAutoTest {
 				mc.player.setYRot(0f);
 				mc.player.setXRot(4f);
 			}
-			case 415 -> mc.options.keyAttack.setDown(true);
-			case 425 -> ArneSurv.LOGGER.info("AUTOTEST AutoTool beim Abbauen: Slot {} ({}) – erwartet 2 (Spitzhacke), Ziel: {}",
-				mc.player.getInventory().getSelectedSlot(), mc.player.getInventory().getSelectedItem().getItem(), mc.hitResult);
+			case 412 -> {
+				// Stein genau dorthin setzen, wohin der Spieler schaut (2,5 Blöcke vor den Augen)
+				var target = BlockPos.containing(mc.player.getEyePosition().add(mc.player.getLookAngle().scale(2.5)));
+				var eye = BlockPos.containing(mc.player.getEyePosition());
+				var server = mc.getSingleplayerServer();
+				server.execute(() -> {
+					var level = server.overworld();
+					for (BlockPos b : BlockPos.betweenClosed(eye.offset(-1, -1, 0), target.offset(1, 1, -1))) {
+						level.setBlockAndUpdate(b, Blocks.AIR.defaultBlockState());
+					}
+					level.setBlockAndUpdate(target, Blocks.STONE.defaultBlockState());
+				});
+			}
+			case 417 -> mc.options.keyAttack.setDown(true);
+			case 425 -> ArneSurv.LOGGER.info("AUTOTEST AutoTool beim Abbauen: Slot {} ({}) – erwartet 2 (Spitzhacke), Ziel: {} {}",
+				mc.player.getInventory().getSelectedSlot(), mc.player.getInventory().getSelectedItem().getItem(),
+				mc.hitResult.getType(), mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bh ? mc.level.getBlockState(bh.getBlockPos()) : "");
 			case 430 -> mc.options.keyAttack.setDown(false);
 			case 435 -> ArneSurv.LOGGER.info("AUTOTEST AutoTool danach: Slot {} – erwartet 0",
 				mc.player.getInventory().getSelectedSlot());
@@ -296,8 +310,14 @@ final class DevAutoTest {
 
 	/** Öffnet "Neue Welt" und klickt auf Erstellen (per Reflection, nur Entwicklung). */
 	private static void createWorldIfOnTitle(Minecraft mc) {
+		if (mc.gui.overlay() != null) return; // Ladebildschirm abwarten
 		var screen = mc.gui.screen();
 		if (screen instanceof net.minecraft.client.gui.screens.TitleScreen && !createRequested) {
+			if (titleTicks == 30) {
+				// Titelbild neu aufbauen, damit ein inzwischen gefundenes Update angezeigt wird
+				mc.gui.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
+			}
+			if (titleTicks == 36) shot(mc, "00_titel");
 			if (++titleTicks > 40) {
 				createRequested = true;
 				net.minecraft.client.gui.screens.worldselection.CreateWorldScreen.openFresh(mc, () -> {
